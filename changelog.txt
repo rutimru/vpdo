@@ -1,0 +1,5 @@
+This file shows the changes in this release of xPDO.
+
+vPDO 1.0.1 (14 Сентября 2023)
+====================================
+- Added changelog.txt
