@@ -1,4 +1,4 @@
-# vPDO v1
+# vPDO O/RB v1
 
 [![Build Status](https://github.com/modxcms/xpdo/workflows/CI/badge.svg?branch=3.x)](https://github.com/modxcms/xpdo/workflows/CI/badge.svg?branch=3.x)
 
