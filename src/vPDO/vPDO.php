@@ -29,8 +29,8 @@ if (!defined('VPDO_CORE_PATH')) {
     /**
      * @var string Полный путь к корневому каталогу vPDO.
      */
-    define('VPDO_CORE_PATH', $VPDO_CORE_PATH);
-    unset($VPDO_CORE_PATH);
+    define('VPDO_CORE_PATH', $vpdo_core_path);
+    unset($vpdo_core_path);
 }
 if (!defined('VPDO_CLI_MODE')) {
     /**
