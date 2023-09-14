@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<phpunit backupGlobals="false"
+         backupStaticAttributes="false"
+         colors="true"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         processIsolation="false"
+         stopOnFailure="false"
+         syntaxCheck="false"
+         bootstrap="./bootstrap.php"
+        >
+    <php>
+        <env name="TEST_DRIVER" value="mysql"/>
+    </php>
+    <testsuites>
+        <testsuite name="Complete">
+            <file>./vPDO/Test/SetUpTest.php</file>
+            <file>./vPDO/Test/vPDOTest.php</file>
+            <file>./vPDO/Test/vPDOIteratorTest.php</file>
+            <file>./vPDO/Test/Om/vPDOObjectTest.php</file>
+            <file>./vPDO/Test/Om/vPDOObjectSingleTableInheritanceTest.php</file>
+            <file>./vPDO/Test/Om/vPDOQueryTest.php</file>
+            <file>./vPDO/Test/Om/vPDOQueryHavingTest.php</file>
+            <file>./vPDO/Test/Om/vPDOQueryLimitTest.php</file>
+            <file>./vPDO/Test/Om/vPDOQuerySortByTest.php</file>
+            <file>./vPDO/Test/Cache/vPDOCacheManagerTest.php</file>
+            <file>./vPDO/Test/Cache/vPDOCacheDbTest.php</file>
+            <file>./vPDO/Test/Compression/vPDOZipTest.php</file>
+            <file>./vPDO/Test/Transport/vPDOTransportTest.php</file>
+            <file>./vPDO/Test/Transport/vPDOVehicleTest.php</file>
+            <file>./vPDO/Test/PSR4/vPDOTest.php</file>
+            <file>./vPDO/Test/TearDownTest.php</file>
+        </testsuite>
+        <testsuite name="Legacy">
+            <file>./vPDO/Legacy/SetUpTest.php</file>
+            <file>./vPDO/Legacy/vPDOTest.php</file>
+            <file>./vPDO/Legacy/Om/vPDOObjectTest.php</file>
+            <file>./vPDO/Legacy/Om/vPDOObjectSingleTableInheritanceTest.php</file>
+            <file>./vPDO/Legacy/Om/vPDOQueryTest.php</file>
+            <file>./vPDO/Legacy/Om/vPDOQueryHavingTest.php</file>
+            <file>./vPDO/Legacy/Om/vPDOQueryLimitTest.php</file>
+            <file>./vPDO/Legacy/Om/vPDOQuerySortByTest.php</file>
+            <file>./vPDO/Legacy/Cache/vPDOCacheDbTest.php</file>
+            <file>./vPDO/Legacy/TearDownTest.php</file>
+        </testsuite>
+    </testsuites>
+
+    <filter>
+        <whitelist>
+            <directory>../src/vPDO/</directory>
+        </whitelist>
+    </filter>
+</phpunit>
