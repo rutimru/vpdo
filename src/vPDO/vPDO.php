@@ -21,8 +21,8 @@ namespace vPDO;
 use Composer\Autoload\ClassLoader;
 use Exception;
 use Psr\Container\ContainerInterface;
-use xPDO\Om\xPDOCriteria;
-use xPDO\Om\xPDOQuery;
+use vPDO\Om\vPDOCriteria;
+use vPDO\Om\vPDOQuery;
 
 if (!defined('VPDO_CORE_PATH')) {
     $vpdo_core_path= strtr(realpath(dirname(__FILE__)), '\\', '/') . '/';
@@ -153,7 +153,7 @@ class vPDO {
     private $cachePath= null;
     /**
      * @var ContainerInterface|array Контейнер или массив (устаревший) дополнительной службы
-     * классы для этого экземпляра xPDO.
+     * классы для этого экземпляра vPDO.
      */
     public $services= null;
     /**
@@ -211,7 +211,7 @@ class vPDO {
     public $_quoteChar= "'";
 
     /**
-     * Create, retrieve, or update specific xPDO instances.
+     * Create, retrieve, or update specific vPDO instances.
      *
      * @param string|int|null $id An optional identifier for the instance. If not set
      * a uniqid will be generated and used as the key for the instance.
@@ -221,7 +221,7 @@ class vPDO {
      * with the provided $id already exists in vPDO::$instances.
      *
      * @throws vPDOException If a valid instance is not retrieved.
-     * @return vPDO An instance of xPDO.
+     * @return vPDO An instance of vPDO.
      */
     public static function getInstance($id = null, $config = null, $forceNew = false) {
         $instances =& self::$instances;
@@ -384,7 +384,7 @@ class vPDO {
      * Получите vPDOConnection из пула подключений vPDO.
      *
      * @param array $options Множество вариантов для установления соединения.
-     * @return xPDOConnection|null Экземпляр vPDOConnection или null, если не удалось восстановить соединение.
+     * @return vPDOConnection|null Экземпляр vPDOConnection или null, если не удалось восстановить соединение.
      */
     public function getConnection(array $options = array()) {
         $conn =& $this->connection;
@@ -437,7 +437,7 @@ class vPDO {
      * {@* {@ссылка vPDO::getCollection()}, {@link vPDOObject::getOne()}, {@link
      * vPDOObject::addOne()} и т.д.
      *
-     * @param string $pkg A package name to use when looking up classes in xPDO.
+     * @param string $pkg A package name to use when looking up classes in vPDO.
      * @param string $path The root path for looking up classes in this package.
      * @param string|null $prefix Provide a string to define a package-specific table_prefix.
      * @param string|null $namespacePrefix An optional namespace prefix for working with PSR-4.
@@ -457,7 +457,7 @@ class vPDO {
     /**
      * Adds a model package and base class path for including classes and/or maps from.
      *
-     * @param string $pkg A package name to use when looking up classes/maps in xPDO.
+     * @param string $pkg A package name to use when looking up classes/maps in vPDO.
      * @param string $path The root path for looking up classes in this package.
      * @param string|null $prefix Provide a string to define a package-specific table_prefix.
      * @param string|null $namespacePrefix An optional namespace prefix for working with PSR-4.
@@ -467,7 +467,7 @@ class vPDO {
         $added= false;
         if (is_string($pkg) && !empty($pkg)) {
             if (!is_string($path) || empty($path)) {
-                $this->log(vPDO::LOG_LEVEL_ERROR, "Invalid path specified for package: {$pkg}; using default xpdo model path: " . VPDO_CORE_PATH . 'Om/');
+                $this->log(vPDO::LOG_LEVEL_ERROR, "Invalid path specified for package: {$pkg}; using default vpdo model path: " . VPDO_CORE_PATH . 'Om/');
                 $path= VPDO_CORE_PATH . 'Om/';
             }
             if (!is_dir($path)) {
@@ -489,7 +489,7 @@ class vPDO {
     /**
      * Adds metadata information about a package and loads the vPDO::$classMap.
      *
-     * @param string $pkg A package name to use when looking up classes/maps in xPDO.
+     * @param string $pkg A package name to use when looking up classes/maps in vPDO.
      * @param string $path The root path for looking up classes in this package.
      * @param string|null $namespacePrefix An optional namespace prefix for working with PSR-4.
      * @return bool
@@ -504,19 +504,19 @@ class vPDO {
             }
             $mapFile = $path . $pkgPath . '/metadata.' . $this->config['dbtype'] . '.php';
             if (file_exists($mapFile)) {
-                $xpdo_meta_map = array();
+                $vpdo_meta_map = array();
                 include $mapFile;
-                if (!empty($xpdo_meta_map)) {
-                    if (isset($xpdo_meta_map['version'])) {
-                        if (version_compare($xpdo_meta_map['version'], '3.0', '>=')) {
-                            $namespacePrefix = isset($xpdo_meta_map['namespacePrefix']) && !empty($xpdo_meta_map['namespacePrefix'])
-                                ? $xpdo_meta_map['namespacePrefix'] . '\\'
+                if (!empty($vpdo_meta_map)) {
+                    if (isset($vpdo_meta_map['version'])) {
+                        if (version_compare($vpdo_meta_map['version'], '3.0', '>=')) {
+                            $namespacePrefix = isset($vpdo_meta_map['namespacePrefix']) && !empty($vpdo_meta_map['namespacePrefix'])
+                                ? $vpdo_meta_map['namespacePrefix'] . '\\'
                                 : '';
                             self::getLoader()->addPsr4($namespacePrefix, $path);
-                            $xpdo_meta_map = $xpdo_meta_map['class_map'];
+                            $vpdo_meta_map = $vpdo_meta_map['class_map'];
                         }
                     }
-                    foreach ($xpdo_meta_map as $className => $extends) {
+                    foreach ($vpdo_meta_map as $className => $extends) {
                         if (!isset($this->classMap[$className])) {
                             $this->classMap[$className] = array();
                         }
@@ -536,7 +536,7 @@ class vPDO {
     /**
      * Gets a list of derivative classes for the specified className.
      *
-     * The specified className must be xPDOObject or a derivative class.
+     * The specified className must be vPDOObject or a derivative class.
      *
      * @param string $className The name of the class to retrieve derivatives for.
      * @return array An array of derivative classes or an empty array.
@@ -580,18 +580,18 @@ class vPDO {
     }
 
     /**
-     * Load a class by fully qualified name.
+     * Загрузите класс по полному имени.
      *
-     * The $fqn should in the format:
+     * $fqn должен быть в формате:
      *
      *    dir_a.dir_b.dir_c.classname
      *
-     * which will translate to:
+     * который будет переведен в:
      *
      *    VPDO_CORE_PATH/Om/dir_a/dir_b/dir_c/dbtype/classname.class.php
      *
-     * As of xPDO 3.0, the use of loadClass is only necessary to support BC
-     * with older xPDO models. Auto-loading in models built with xPDO 3.0 or
+     * As of vPDO 3.0, the use of loadClass is only necessary to support BC
+     * with older vPDO models. Auto-loading in models built with vPDO 3.0 or
      * later makes the use of this method obsolete.
      *
      * @param string $fqn The fully-qualified name of the class to load.
@@ -685,15 +685,15 @@ class vPDO {
         if ($class && !$transient && !isset ($this->map[$class])) {
             $mapfile= strtr($fqn, '.', '/') . '.map.inc.php';
             if (file_exists($path . $mapfile)) {
-                $xpdo_meta_map= array();
+                $vpdo_meta_map= array();
                 $rt= include ($path . $mapfile);
-                if (!$rt || !isset($xpdo_meta_map[$class])) {
+                if (!$rt || !isset($vpdo_meta_map[$class])) {
                     $this->log(vPDO::LOG_LEVEL_WARN, "Could not load metadata map {$mapfile} for class {$class} from {$fqn}");
                 } else {
-                    if (!array_key_exists('fieldAliases', $xpdo_meta_map[$class])) {
-                        $xpdo_meta_map[$class]['fieldAliases'] = array();
+                    if (!array_key_exists('fieldAliases', $vpdo_meta_map[$class])) {
+                        $vpdo_meta_map[$class]['fieldAliases'] = array();
                     }
-                    $this->map[$class] = $xpdo_meta_map[$class];
+                    $this->map[$class] = $vpdo_meta_map[$class];
                 }
             }
         }
@@ -701,10 +701,10 @@ class vPDO {
     }
 
     /**
-     * Get an xPDO configuration option value by key.
+     * Get an vPDO configuration option value by key.
      *
      * @param string $key The option key.
-     * @param array|null $options A set of options to override those from xPDO.
+     * @param array|null $options A set of options to override those from vPDO.
      * @param mixed|null $default An optional default value to return if no value is found.
      * @param bool $skipEmpty True if empty string values should be ignored.
      * @return mixed The configuration option value.
@@ -742,7 +742,7 @@ class vPDO {
     }
 
     /**
-     * Sets an xPDO configuration option value.
+     * Sets an vPDO configuration option value.
      *
      * @param string $key The option key.
      * @param mixed $value A value to set for the given option key.
@@ -760,7 +760,7 @@ class vPDO {
      * @param string $method The name of the method you want to call.
      * @param array $args An array of arguments for the method.
      * @param boolean $transient Indicates if the class has dbtype derivatives. Set to true if you
-     * want to use on classes not derived from xPDOObject.
+     * want to use on classes not derived from vPDOObject.
      * @return mixed|null The callback method's return value or null if no valid method is found.
      */
     public function call($class, $method, array $args = array(), $transient = false) {
@@ -794,10 +794,10 @@ class vPDO {
      * Creates a new instance of a specified class.
      *
      * All new objects created with this method are transient until {@link
-     * xPDOObject::save()} is called the first time and is reflected by the
-     * {@link Om\xPDOObject::$_new} property.
+     * vPDOObject::save()} is called the first time and is reflected by the
+     * {@link Om\vPDOObject::$_new} property.
      *
-     * @template T of Om\xPDOObject
+     * @template T of Om\vPDOObject
      * @param class-string<T> $className Name of the class to get a new instance of.
      * @param array $fields An associated array of field names/values to
      * populate the object with.
@@ -808,7 +808,7 @@ class vPDO {
         $instance= null;
         if ($className = $this->loadClass($className)) {
             $className = self::getPlatformClass($className);
-            /** @var Om\xPDOObject $instance */
+            /** @var Om\vPDOObject $instance */
             if ($instance = new $className($this)) {
                 if (is_array($fields) && !empty($fields)) {
                     $instance->fromArray($fields);
@@ -822,14 +822,14 @@ class vPDO {
      * Retrieves a single object instance by the specified criteria.
      *
      * The criteria can be a primary key value, and array of primary key values
-     * (for multiple primary key objects) or an {@link xPDOCriteria} object. If
+     * (for multiple primary key objects) or an {@link vPDOCriteria} object. If
      * no $criteria parameter is specified, no class is found, or an object
      * cannot be located by the supplied criteria, null is returned.
      *
-     * @uses xPDOObject::load()
-     * @template T of Om\xPDOObject
+     * @uses vPDOObject::load()
+     * @template T of Om\vPDOObject
      * @param class-string<T> $className Name of the class to get an instance of.
-     * @param mixed $criteria Primary key of the record or a xPDOCriteria object.
+     * @param mixed $criteria Primary key of the record or a vPDOCriteria object.
      * @param mixed $cacheFlag If an integer value is provided, this specifies
      * the time to live in the object cache; if cacheFlag === false, caching is
      * ignored for the object and if cacheFlag === true, the object will live in
@@ -847,12 +847,12 @@ class vPDO {
     }
 
     /**
-     * Retrieves a collection of xPDOObjects by the specified xPDOCriteria.
+     * Retrieves a collection of vPDOObjects by the specified vPDOCriteria.
      *
-     * @uses xPDOObject::loadCollection()
-     * @template T of Om\xPDOObject
+     * @uses vPDOObject::loadCollection()
+     * @template T of Om\vPDOObject
      * @param class-string<T> $className Name of the class to search for instances of.
-     * @param object|array|string $criteria An xPDOCriteria object or an array
+     * @param object|array|string $criteria An vPDOCriteria object or an array
      * search expression.
      * @param mixed $cacheFlag If an integer value is provided, this specifies
      * the time to live in the result set cache; if cacheFlag === false, caching
@@ -865,26 +865,26 @@ class vPDO {
     }
 
     /**
-     * Retrieves an iterable representation of a collection of xPDOObjects.
+     * Retrieves an iterable representation of a collection of vPDOObjects.
      *
      * @param string $className Name of the class to search for instances of.
-     * @param mixed $criteria An xPDOCriteria object or representation.
+     * @param mixed $criteria An vPDOCriteria object or representation.
      * @param bool $cacheFlag If an integer value is provided, this specifies
      * the time to live in the result set cache; if cacheFlag === false, caching
      * is ignored for the collection and if cacheFlag === true, the objects will
      * live in cache until flushed by another process.
-     * @return xPDOIterator An iterable representation of a collection.
+     * @return vPDOIterator An iterable representation of a collection.
      */
     public function getIterator($className, $criteria= null, $cacheFlag= true) {
-        return new xPDOIterator($this, array('class' => $className, 'criteria' => $criteria, 'cacheFlag' => $cacheFlag));
+        return new vPDOIterator($this, array('class' => $className, 'criteria' => $criteria, 'cacheFlag' => $cacheFlag));
     }
 
     /**
-     * Update field values across a collection of xPDOObjects.
+     * Update field values across a collection of vPDOObjects.
      *
      * @param string $className Name of the class to update fields of.
      * @param array $set An associative array of field/value pairs representing the updates to make.
-     * @param mixed $criteria An xPDOCriteria object or representation.
+     * @param mixed $criteria An vPDOCriteria object or representation.
      * @return bool|int The number of instances affected by the update or false on failure.
      */
     public function updateCollection($className, array $set, $criteria= null) {
@@ -910,9 +910,9 @@ class vPDO {
                             foreach ($relatedClasses as $relatedClass) {
                                 $this->cacheManager->delete($relatedClass, array(
                                     vPDO::OPT_CACHE_KEY => $this->getOption('cache_db_key', null, 'db'),
-                                    vPDO::OPT_CACHE_HANDLER => $this->getOption(vPDO::OPT_CACHE_DB_HANDLER, null, $this->getOption(vPDO::OPT_CACHE_HANDLER, null, 'xPDO\\Cache\\xPDOFileCache')),
-                                    vPDO::OPT_CACHE_FORMAT => (integer) $this->getOption('cache_db_format', null, $this->getOption(vPDO::OPT_CACHE_FORMAT, null, Cache\xPDOCacheManager::CACHE_PHP)),
-                                    vPDO::OPT_CACHE_PREFIX => $this->getOption('cache_db_prefix', null, Cache\xPDOCacheManager::CACHE_DIR),
+                                    vPDO::OPT_CACHE_HANDLER => $this->getOption(vPDO::OPT_CACHE_DB_HANDLER, null, $this->getOption(vPDO::OPT_CACHE_HANDLER, null, 'vPDO\\Cache\\vPDOFileCache')),
+                                    vPDO::OPT_CACHE_FORMAT => (integer) $this->getOption('cache_db_format', null, $this->getOption(vPDO::OPT_CACHE_FORMAT, null, Cache\vPDOCacheManager::CACHE_PHP)),
+                                    vPDO::OPT_CACHE_PREFIX => $this->getOption('cache_db_prefix', null, Cache\vPDOCacheManager::CACHE_DIR),
                                     vPDO::OPT_CACHE_MULTIPLE_OBJECT_DELETE => true
                                 ));
                             }
@@ -934,7 +934,7 @@ class vPDO {
      * Remove an instance of the specified className by a supplied criteria.
      *
      * @param string $className The name of the class to remove an instance of.
-     * @param mixed $criteria Valid xPDO criteria for selecting an instance.
+     * @param mixed $criteria Valid vPDO criteria for selecting an instance.
      * @return boolean True if the instance is successfully removed.
      */
     public function removeObject($className, $criteria) {
@@ -946,11 +946,11 @@ class vPDO {
                     $query->where($criteria);
                     if ($query->prepare()) {
                         if ($this->exec($query->toSQL()) !== 1) {
-                            $this->log(vPDO::LOG_LEVEL_ERROR, "xPDO->removeObject - Error deleting {$className} instance using query " . $query->toSQL());
+                            $this->log(vPDO::LOG_LEVEL_ERROR, "vPDO->removeObject - Error deleting {$className} instance using query " . $query->toSQL());
                         } else {
                             $removed= true;
                             if ($this->getOption(vPDO::OPT_CACHE_DB)) {
-                                $this->cacheManager->delete(Cache\xPDOCacheManager::CACHE_DIR . $query->getAlias(), array(vPDO::OPT_CACHE_MULTIPLE_OBJECT_DELETE => true));
+                                $this->cacheManager->delete(Cache\vPDOCacheManager::CACHE_DIR . $query->getAlias(), array(vPDO::OPT_CACHE_MULTIPLE_OBJECT_DELETE => true));
                             }
                             $callback = $this->getOption(vPDO::OPT_CALLBACK_ON_REMOVE);
                             if ($callback && is_callable($callback)) {
@@ -960,8 +960,8 @@ class vPDO {
                     }
                 }
             } else {
-                $this->log(vPDO::LOG_LEVEL_WARN, "xPDO->removeObject - {$className} instance to remove not found!");
-                if ($this->getDebug() === true) $this->log(vPDO::LOG_LEVEL_DEBUG, "xPDO->removeObject - {$className} instance to remove not found using criteria " . print_r($criteria, true));
+                $this->log(vPDO::LOG_LEVEL_WARN, "vPDO->removeObject - {$className} instance to remove not found!");
+                if ($this->getDebug() === true) $this->log(vPDO::LOG_LEVEL_DEBUG, "vPDO->removeObject - {$className} instance to remove not found using criteria " . print_r($criteria, true));
             }
         } else {
             $this->log(vPDO::LOG_LEVEL_ERROR, "Could not get connection for writing data", '', __METHOD__, __FILE__, __LINE__);
@@ -973,7 +973,7 @@ class vPDO {
      * Remove a collection of instances by the supplied className and criteria.
      *
      * @param string $className The name of the class to remove a collection of.
-     * @param mixed $criteria Valid xPDO criteria for selecting a collection.
+     * @param mixed $criteria Valid vPDO criteria for selecting a collection.
      * @return boolean|integer False if the remove encounters an error, otherwise an integer value
      * representing the number of rows that were removed.
      */
@@ -986,10 +986,10 @@ class vPDO {
                 if ($query->prepare()) {
                     $removed= $this->exec($query->toSQL());
                     if ($removed === false) {
-                        $this->log(vPDO::LOG_LEVEL_ERROR, "xPDO->removeCollection - Error deleting {$className} instances using query " . $query->toSQL());
+                        $this->log(vPDO::LOG_LEVEL_ERROR, "vPDO->removeCollection - Error deleting {$className} instances using query " . $query->toSQL());
                     } else {
                         if ($this->getOption(vPDO::OPT_CACHE_DB)) {
-                            $this->cacheManager->delete(Cache\xPDOCacheManager::CACHE_DIR . $query->getAlias(), array(vPDO::OPT_CACHE_MULTIPLE_OBJECT_DELETE => true));
+                            $this->cacheManager->delete(Cache\vPDOCacheManager::CACHE_DIR . $query->getAlias(), array(vPDO::OPT_CACHE_MULTIPLE_OBJECT_DELETE => true));
                         }
                         $callback = $this->getOption(vPDO::OPT_CALLBACK_ON_REMOVE);
                         if ($callback && is_callable($callback)) {
@@ -997,7 +997,7 @@ class vPDO {
                         }
                     }
                 } else {
-                    $this->log(vPDO::LOG_LEVEL_ERROR, "xPDO->removeCollection - Error preparing statement to delete {$className} instances using query: {$query->toSQL()}");
+                    $this->log(vPDO::LOG_LEVEL_ERROR, "vPDO->removeCollection - Error preparing statement to delete {$className} instances using query: {$query->toSQL()}");
                 }
             }
         } else {
@@ -1007,10 +1007,10 @@ class vPDO {
     }
 
     /**
-     * Retrieves a count of xPDOObjects by the specified xPDOCriteria.
+     * Retrieves a count of vPDOObjects by the specified vPDOCriteria.
      *
-     * @param string $className Class of xPDOObject to count instances of.
-     * @param mixed $criteria Any valid xPDOCriteria object or expression.
+     * @param string $className Class of vPDOObject to count instances of.
+     * @param mixed $criteria Any valid vPDOCriteria object or expression.
      * @return integer The number of instances found by the criteria.
      */
     public function getCount($className, $criteria = null) {
@@ -1030,7 +1030,7 @@ class vPDO {
             if (!empty($query->query['groupby']) || !empty($query->query['having'])) {
                 $query->select($expr);
                 if ($query->prepare()) {
-                    $countQuery = new xPDOCriteria($this, "SELECT COUNT(*) FROM ({$query->toSQL(false)}) cq", $query->bindings, $query->cacheFlag);
+                    $countQuery = new vPDOCriteria($this, "SELECT COUNT(*) FROM ({$query->toSQL(false)}) cq", $query->bindings, $query->cacheFlag);
                     $stmt = $countQuery->prepare();
                 }
             } else {
@@ -1045,16 +1045,16 @@ class vPDO {
     }
 
     /**
-     * Retrieves an xPDOObject instance with specified related objects.
+     * Retrieves an vPDOObject instance with specified related objects.
      *
      * @uses vPDO::getCollectionGraph()
-     * @template T of Om\xPDOObject
+     * @template T of Om\vPDOObject
      * @param class-string<T> $className The name of the class to return an instance of.
      * @param string|array $graph A related object graph in array or JSON
      * format, e.g. array('relationAlias'=>array('subRelationAlias'=>array()))
      * or {"relationAlias":{"subRelationAlias":{}}}.  Note that the empty arrays
      * are necessary in order for the relation to be recognized.
-     * @param mixed $criteria A valid xPDOCriteria instance or expression.
+     * @param mixed $criteria A valid vPDOCriteria instance or expression.
      * @param boolean|integer $cacheFlag Indicates if the result set should be
      * cached, and optionally for how many seconds.
      * @return T|null The object instance with related objects from the graph
@@ -1073,16 +1073,16 @@ class vPDO {
     }
 
     /**
-     * Retrieves a collection of xPDOObject instances with related objects.
+     * Retrieves a collection of vPDOObject instances with related objects.
      *
-     * @uses xPDOQuery::bindGraph()
-     * @template T of Om\xPDOObject
+     * @uses vPDOQuery::bindGraph()
+     * @template T of Om\vPDOObject
      * @param class-string<T> $className The name of the class to return a collection of.
      * @param string|array $graph A related object graph in array or JSON
      * format, e.g. array('relationAlias'=>array('subRelationAlias'=>array()))
      * or {"relationAlias":{"subRelationAlias":{}}}.  Note that the empty arrays
      * are necessary in order for the relation to be recognized.
-     * @param mixed $criteria A valid xPDOCriteria instance or condition string.
+     * @param mixed $criteria A valid vPDOCriteria instance or condition string.
      * @param boolean $cacheFlag Indicates if the result set should be cached.
      * @return array<int, T> An array of instances matching the criteria with related
      * objects from the graph hydrated.  An empty array is returned when no
@@ -1121,9 +1121,9 @@ class vPDO {
     }
 
     /**
-     * Convert any valid criteria into an xPDOQuery instance.
+     * Convert any valid criteria into an vPDOQuery instance.
      *
-     * @todo Get criteria pre-defined in an {@link xPDOObject} class metadata
+     * @todo Get criteria pre-defined in an {@link vPDOObject} class metadata
      * definition by name.
      *
      * @todo Define callback functions as an alternative to retreiving criteria
@@ -1135,7 +1135,7 @@ class vPDO {
      * for retrieving single and multiple instances of an object).
      * @param boolean|integer $cacheFlag Indicates if the result is cached and
      * optionally for how many seconds.
-     * @return Om\xPDOCriteria A criteria object or null if not found.
+     * @return Om\vPDOCriteria A criteria object or null if not found.
      */
     public function getCriteria($className, $type= null, $cacheFlag= true) {
         return $this->newQuery($className, $type, $cacheFlag);
@@ -1144,20 +1144,20 @@ class vPDO {
     /**
      * Validate and return the type of a specified criteria variable.
      *
-     * @param mixed $criteria An xPDOCriteria instance or any valid criteria variable.
+     * @param mixed $criteria An vPDOCriteria instance or any valid criteria variable.
      * @return string|null The type of valid criteria passed, or null if the criteria is not valid.
      */
     public function getCriteriaType($criteria) {
         $type = gettype($criteria);
         if ($type === 'object') {
             $type = get_class($criteria);
-            if (!$criteria instanceof Om\xPDOCriteria) {
+            if (!$criteria instanceof Om\vPDOCriteria) {
                 $this->log(vPDO::LOG_LEVEL_WARN, "Invalid criteria object of class {$type} encountered.", '', __METHOD__, __FILE__, __LINE__);
                 $type = null;
-            } elseif ($criteria instanceof Om\xPDOQuery) {
-                $type = 'xPDOQuery';
+            } elseif ($criteria instanceof Om\vPDOQuery) {
+                $type = 'vPDOQuery';
             } else {
-                $type = 'xPDOCriteria';
+                $type = 'vPDOCriteria';
             }
         }
         return $type;
@@ -1169,12 +1169,12 @@ class vPDO {
      * This applies class_key filtering for single-table inheritance queries and may
      * provide a convenient location for similar features in the future.
      *
-     * @param string $className A valid xPDOObject derivative table class.
-     * @param Om\xPDOQuery $criteria A valid xPDOQuery instance.
-     * @return Om\xPDOQuery The xPDOQuery instance with derivative criteria added.
+     * @param string $className A valid vPDOObject derivative table class.
+     * @param Om\vPDOQuery $criteria A valid vPDOQuery instance.
+     * @return Om\vPDOQuery The vPDOQuery instance with derivative criteria added.
      */
     public function addDerivativeCriteria($className, $criteria) {
-        if ($criteria instanceof Om\xPDOQuery && ($className = $this->loadClass($className)) && !isset($this->map[$className]['table'])) {
+        if ($criteria instanceof Om\vPDOQuery && ($className = $this->loadClass($className)) && !isset($this->map[$className]['table'])) {
             if (isset($this->map[$className]['fields']['class_key']) && !empty($this->map[$className]['fields']['class_key'])) {
                 $criteria->where(array('class_key' => $this->map[$className]['fields']['class_key']));
                 if ($this->getDebug() === true) {
@@ -1377,7 +1377,7 @@ class vPDO {
     }
 
     /**
-     * Indicates the inheritance model for the xPDOObject class specified.
+     * Indicates the inheritance model for the vPDOObject class specified.
      *
      * @param string $className The class to determine the table inherit type from.
      * @return string single, multiple, or none
@@ -1595,7 +1595,7 @@ class vPDO {
      */
     public function getPK($className) {
         $pk= null;
-        if (strcasecmp($className, 'xPDOObject') !== 0) {
+        if (strcasecmp($className, 'vPDOObject') !== 0) {
             if ($actualClassName= $this->loadClass($className)) {
                 if (isset ($this->map[$actualClassName]['indexes'])) {
                     foreach ($this->map[$actualClassName]['indexes'] as $k => $v) {
@@ -1747,13 +1747,13 @@ class vPDO {
     }
 
     /**
-     * Get a complete relation graph for an xPDOObject class.
+     * Get a complete relation graph for an vPDOObject class.
      *
-     * @param string $className A fully-qualified xPDOObject class name.
+     * @param string $className A fully-qualified vPDOObject class name.
      * @param int $depth The depth to retrieve relations for the graph, defaults to 3.
      * @param array &$parents An array of parent classes to avoid traversing circular dependencies.
      * @param array &$visited An array of already visited classes to avoid traversing circular dependencies.
-     * @return array An xPDOObject relation graph, or an empty array if no graph can be constructed.
+     * @return array An vPDOObject relation graph, or an empty array if no graph can be constructed.
      */
     public function getGraph($className, $depth= 3, &$parents = array(), &$visited = array()) {
         $graph = array();
@@ -1808,7 +1808,7 @@ class vPDO {
     /**
      * Gets select columns from a specific class for building a query.
      *
-     * @uses xPDOObject::getSelectColumns()
+     * @uses vPDOObject::getSelectColumns()
      * @param string $className The name of the class to build the column list
      * from.
      * @param string $tableAlias An optional alias for the class table, to be
@@ -1953,7 +1953,7 @@ class vPDO {
 
     /**
      * OK!!!
-     * Возвращает состояние отладки для экземпляра xPDO.
+     * Возвращает состояние отладки для экземпляра vPDO.
      *
      * @return boolean|integer Текущее состояние отладки для экземпляра, true для on,
      * false для off.
@@ -2111,7 +2111,7 @@ class vPDO {
             @ob_end_clean();
             if ($target=='FILE' && $this->getCacheManager()) {
                 $filename = isset($targetOptions['filename']) ? $targetOptions['filename'] : 'error.log';
-                $filepath = isset($targetOptions['filepath']) ? $targetOptions['filepath'] : $this->getCachePath() . Cache\xPDOCacheManager::LOG_DIR;
+                $filepath = isset($targetOptions['filepath']) ? $targetOptions['filepath'] : $this->getCachePath() . Cache\vPDOCacheManager::LOG_DIR;
                 $this->cacheManager->writeFile($filepath . $filename, $content, 'a');
             } elseif ($target=='ARRAY' && isset($targetOptions['var']) && is_array($targetOptions['var'])) {
                 $targetOptions['var'][] = $content;
@@ -2144,9 +2144,10 @@ class vPDO {
         $backtrace= array ();
         foreach (debug_backtrace() as $levelKey => $levelElement) {
             foreach ($levelElement as $traceKey => $traceElement) {
-                if ($traceKey == 'object' && $traceElement instanceof Om\vPDOObject) {
-                    $backtrace[$levelKey][$traceKey]= $traceElement->toArray('', true);
-                } elseif ($traceKey == 'object') {
+                // if ($traceKey == 'object' && $traceElement instanceof Om\vPDOObject) {
+                //     $backtrace[$levelKey][$traceKey]= $traceElement->toArray('', true);
+                // } else
+                if ($traceKey == 'object') {
                     $backtrace[$levelKey][$traceKey]= get_class($traceElement);
                 } else {
                     $backtrace[$levelKey][$traceKey]= $traceElement;
@@ -2188,7 +2189,7 @@ class vPDO {
      *
      * Different database engines escape string literals in SQL using different characters. For example, this is used to
      * escape column names that might match a reserved string for that SQL interpreter. To write database agnostic
-     * queries with xPDO, it is highly recommend to escape any database or column names in any native SQL strings used.
+     * queries with vPDO, it is highly recommend to escape any database or column names in any native SQL strings used.
      *
      * @param string $string A string to escape using the platform-specific escape characters.
      * @return string The string escaped with the platform-specific escape characters.
@@ -2263,7 +2264,7 @@ class vPDO {
     /**
      * Retrieves a result array from the object cache.
      *
-     * @param string|Om\xPDOCriteria $signature A unique string or xPDOCriteria object
+     * @param string|Om\vPDOCriteria $signature A unique string or vPDOCriteria object
      * that represents the query identifying the result set.
      * @param string $class An optional classname the result represents.
      * @param array $options Various cache options.
@@ -2279,8 +2280,8 @@ class vPDO {
                 $sigHash= '';
                 $sigClass= empty($class) || !is_string($class) ? '' : $class;
                 if (is_object($signature)) {
-                    if ($signature instanceof Om\xPDOCriteria) {
-                        if ($signature instanceof Om\xPDOQuery) {
+                    if ($signature instanceof Om\vPDOCriteria) {
+                        if ($signature instanceof Om\vPDOQuery) {
                             $signature->construct();
                             if (empty($sigClass)) $sigClass= $signature->getTableClass();
                         }
@@ -2308,15 +2309,15 @@ class vPDO {
                 if (is_string($sig) && !empty($sig)) {
                     $result= $this->cacheManager->get($sig, array(
                         vPDO::OPT_CACHE_KEY => $this->getOption('cache_db_key', $options, 'db'),
-                        vPDO::OPT_CACHE_HANDLER => $this->getOption(vPDO::OPT_CACHE_DB_HANDLER, $options, $this->getOption(vPDO::OPT_CACHE_HANDLER, $options, 'xPDO\\Cache\\xPDOFileCache')),
-                        vPDO::OPT_CACHE_FORMAT => (integer) $this->getOption('cache_db_format', null, $this->getOption(vPDO::OPT_CACHE_FORMAT, null, Cache\xPDOCacheManager::CACHE_PHP)),
-                        'cache_prefix' => $this->getOption('cache_db_prefix', $options, Cache\xPDOCacheManager::CACHE_DIR),
+                        vPDO::OPT_CACHE_HANDLER => $this->getOption(vPDO::OPT_CACHE_DB_HANDLER, $options, $this->getOption(vPDO::OPT_CACHE_HANDLER, $options, 'vPDO\\Cache\\vPDOFileCache')),
+                        vPDO::OPT_CACHE_FORMAT => (integer) $this->getOption('cache_db_format', null, $this->getOption(vPDO::OPT_CACHE_FORMAT, null, Cache\vPDOCacheManager::CACHE_PHP)),
+                        'cache_prefix' => $this->getOption('cache_db_prefix', $options, Cache\vPDOCacheManager::CACHE_DIR),
                     ));
                     if ($this->getDebug() === true) {
                         if (!$result) {
-                            $this->log(vPDO::LOG_LEVEL_DEBUG, 'No cache item found for class ' . $sigClass . ' with signature ' . Cache\xPDOCacheManager::CACHE_DIR . $sig);
+                            $this->log(vPDO::LOG_LEVEL_DEBUG, 'No cache item found for class ' . $sigClass . ' with signature ' . Cache\vPDOCacheManager::CACHE_DIR . $sig);
                         } else {
-                            $this->log(vPDO::LOG_LEVEL_DEBUG, 'Loaded cache item for class ' . $sigClass . ' with signature ' . Cache\xPDOCacheManager::CACHE_DIR . $sig);
+                            $this->log(vPDO::LOG_LEVEL_DEBUG, 'Loaded cache item for class ' . $sigClass . ' with signature ' . Cache\vPDOCacheManager::CACHE_DIR . $sig);
                         }
                     }
                 }
@@ -2328,7 +2329,7 @@ class vPDO {
     /**
      * Places a result set in the object cache.
      *
-     * @param string|Om\xPDOCriteria $signature A unique string or xPDOCriteria object
+     * @param string|Om\vPDOCriteria $signature A unique string or vPDOCriteria object
      * representing the object.
      * @param object $object An object to place a representation of in the cache.
      * @param integer $lifetime An optional number of seconds the cached result
@@ -2351,8 +2352,8 @@ class vPDO {
                 $sigClass= '';
                 $sigGraph= $this->getOption(vPDO::OPT_CACHE_DB_SIG_GRAPH, $options, array());
                 if (is_object($signature)) {
-                    if ($signature instanceof Om\xPDOCriteria) {
-                        if ($signature instanceof Om\xPDOQuery) {
+                    if ($signature instanceof Om\vPDOCriteria) {
+                        if ($signature instanceof Om\vPDOQuery) {
                             $signature->construct();
                             if (empty($sigClass)) $sigClass = $signature->getTableClass();
                         }
@@ -2374,31 +2375,31 @@ class vPDO {
                     }
                 }
                 if (empty($sigClass)) {
-                    if ($object instanceof Om\xPDOObject) {
-                        $sigClass= $object->_class;
-                    } else {
+                    // if ($object instanceof Om\vPDOObject) {
+                    //     $sigClass= $object->_class;
+                    // } else {
                         $sigClass= $this->getOption(vPDO::OPT_CACHE_DB_SIG_CLASS, $options, '__sqlResult');
-                    }
+                    // }
                 }
                 if (empty($sigKey) && is_string($signature)) $sigKey= $signature;
-                if (empty($sigKey) && $object instanceof Om\xPDOObject) $sigKey= $object->getPrimaryKey();
+                // if (empty($sigKey) && $object instanceof Om\vPDOObject) $sigKey= $object->getPrimaryKey();
                 if ($sigClass && $sigKey) {
                     $sigHash= md5($this->toJSON(is_array($sigKey) ? $sigKey : array($sigKey)));
                     $sig= implode('/', array ($sigClass, $sigHash));
                     if (is_string($sig)) {
                         if ($this->getOption('modified', $options, false)) {
-                            if (empty($sigGraph) && $object instanceof Om\xPDOObject) {
-                                $sigGraph = array_merge(array($object->_class => array('class' => $object->_class)), $object->_aggregates, $object->_composites);
-                            }
+                            // if (empty($sigGraph) && $object instanceof Om\vPDOObject) {
+                            //     $sigGraph = array_merge(array($object->_class => array('class' => $object->_class)), $object->_aggregates, $object->_composites);
+                            // }
                             if (!empty($sigGraph)) {
                                 foreach ($sigGraph as $gAlias => $gMeta) {
                                     $gClass = $gMeta['class'];
                                     $removed= $this->cacheManager->delete($gClass, array_merge($options, array(
                                         vPDO::OPT_CACHE_KEY => $this->getOption('cache_db_key', $options, 'db'),
-                                        vPDO::OPT_CACHE_HANDLER => $this->getOption(vPDO::OPT_CACHE_DB_HANDLER, $options, $this->getOption(vPDO::OPT_CACHE_HANDLER, $options, 'xPDO\\Cache\\xPDOFileCache')),
-                                        vPDO::OPT_CACHE_FORMAT => (integer) $this->getOption('cache_db_format', $options, $this->getOption(vPDO::OPT_CACHE_FORMAT, $options, Cache\xPDOCacheManager::CACHE_PHP)),
+                                        vPDO::OPT_CACHE_HANDLER => $this->getOption(vPDO::OPT_CACHE_DB_HANDLER, $options, $this->getOption(vPDO::OPT_CACHE_HANDLER, $options, 'vPDO\\Cache\\vPDOFileCache')),
+                                        vPDO::OPT_CACHE_FORMAT => (integer) $this->getOption('cache_db_format', $options, $this->getOption(vPDO::OPT_CACHE_FORMAT, $options, Cache\vPDOCacheManager::CACHE_PHP)),
                                         vPDO::OPT_CACHE_EXPIRES => (integer) $this->getOption(vPDO::OPT_CACHE_DB_EXPIRES, null, $this->getOption(vPDO::OPT_CACHE_EXPIRES, null, 0)),
-                                        vPDO::OPT_CACHE_PREFIX => $this->getOption('cache_db_prefix', $options, Cache\xPDOCacheManager::CACHE_DIR),
+                                        vPDO::OPT_CACHE_PREFIX => $this->getOption('cache_db_prefix', $options, Cache\vPDOCacheManager::CACHE_DIR),
                                         vPDO::OPT_CACHE_MULTIPLE_OBJECT_DELETE => true
                                     )));
                                     if ($this->getDebug() === true) {
@@ -2409,19 +2410,19 @@ class vPDO {
                         }
                         $cacheOptions = array_merge($options, array(
                             vPDO::OPT_CACHE_KEY => $this->getOption('cache_db_key', $options, 'db'),
-                            vPDO::OPT_CACHE_HANDLER => $this->getOption(vPDO::OPT_CACHE_DB_HANDLER, $options, $this->getOption(vPDO::OPT_CACHE_HANDLER, $options, 'xPDO\\Cache\\xPDOFileCache')),
-                            vPDO::OPT_CACHE_FORMAT => (integer) $this->getOption('cache_db_format', $options, $this->getOption(vPDO::OPT_CACHE_FORMAT, $options, Cache\xPDOCacheManager::CACHE_PHP)),
+                            vPDO::OPT_CACHE_HANDLER => $this->getOption(vPDO::OPT_CACHE_DB_HANDLER, $options, $this->getOption(vPDO::OPT_CACHE_HANDLER, $options, 'vPDO\\Cache\\vPDOFileCache')),
+                            vPDO::OPT_CACHE_FORMAT => (integer) $this->getOption('cache_db_format', $options, $this->getOption(vPDO::OPT_CACHE_FORMAT, $options, Cache\vPDOCacheManager::CACHE_PHP)),
                             vPDO::OPT_CACHE_EXPIRES => (integer) $this->getOption(vPDO::OPT_CACHE_DB_EXPIRES, null, $this->getOption(vPDO::OPT_CACHE_EXPIRES, null, 0)),
-                            vPDO::OPT_CACHE_PREFIX => $this->getOption('cache_db_prefix', $options, Cache\xPDOCacheManager::CACHE_DIR)
+                            vPDO::OPT_CACHE_PREFIX => $this->getOption('cache_db_prefix', $options, Cache\vPDOCacheManager::CACHE_DIR)
                         ));
                         $result= $this->cacheManager->set($sig, $object, $lifetime, $cacheOptions);
-                        if ($result && $object instanceof Om\xPDOObject) {
-                            if ($this->getDebug() === true) {
-                                $this->log(vPDO::LOG_LEVEL_DEBUG, "xPDO->toCache() successfully cached object with signature " . Cache\xPDOCacheManager::CACHE_DIR . $sig);
-                            }
-                        }
+                        // if ($result && $object instanceof Om\vPDOObject) {
+                            // if ($this->getDebug() === true) {
+                            //     $this->log(vPDO::LOG_LEVEL_DEBUG, "vPDO->toCache() successfully cached object with signature " . Cache\vPDOCacheManager::CACHE_DIR . $sig);
+                            // }
+                        // }
                         if (!$result) {
-                            $this->log(vPDO::LOG_LEVEL_WARN, "xPDO->toCache() could not cache object with signature " . Cache\xPDOCacheManager::CACHE_DIR . $sig);
+                            $this->log(vPDO::LOG_LEVEL_WARN, "vPDO->toCache() could not cache object with signature " . Cache\vPDOCacheManager::CACHE_DIR . $sig);
                         }
                     }
                 } else {
