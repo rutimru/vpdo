@@ -1,5 +1,5 @@
 {
-    "name": "rutimru/vpdo",
+    "name": "rutim/vpdo",
     "description": "A PDO-based Object/Relational Bridge Library",
     "type": "library",
     "license": "GPL-2.0+",
